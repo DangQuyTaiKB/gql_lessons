@@ -149,6 +149,46 @@ graphql_app = GraphQLRouter(
     context_getter=get_context
 )
 
+# @app.get("/gql")
+# async def graphiql(request: Request):
+#     return await graphql_app.render_graphql_ide(request)
+
+# @app.post("/gql")
+# async def apollo_gql(request: Request, item: Item):
+#     DEMOE = os.getenv("DEMO", None)
+
+#     sentinelResult = await sentinel(request, item)
+#     if DEMOE == "False":
+#         if sentinelResult:
+#             logging.info(f"sentinel test failed for query={item} \n request={request}")
+#             return sentinelResult
+#         logging.info(f"sentinel test passed for query={item} for user {request.scope['user']}")
+#     else:
+#         request.scope["user"] = {"id": "2d9dc5ca-a4a2-11ed-b9df-0242ac120003"}
+#         logging.info(f"sentinel skippend because of DEMO mode for query={item} for user {request.scope['user']}")
+#     try:
+#         context = await get_context(request)
+#         schemaresult = await schema.execute(query=item.query, variable_values=item.variables, operation_name=item.operationName, context_value=context)
+#     except Exception as e:
+#         logging.info(f"error during schema execute {e}")
+#         return {"data": None, "errors": [f"{type(e).__name__}: {e}"]}
+    
+#     # logging.info(f"schema execute result \n{schemaresult}")
+#     result = {"data": schemaresult.data}
+#     if schemaresult.errors:
+#         re = []
+#         for error in schemaresult.errors:
+#             re.append({
+#                 # "message": error.message,
+#                 # "path": error.path,
+#                 # "repr": error.__repr__(),
+#                 "msg": f"{error}".split("\n")
+#             })
+                      
+#         result["errors"] = re
+#     return result
+
+# logging.info("All initialization is done")
 @app.get("/gql")
 async def graphiql(request: Request):
     return await graphql_app.render_graphql_ide(request)
@@ -162,7 +202,7 @@ async def apollo_gql(request: Request, item: Item):
         if sentinelResult:
             logging.info(f"sentinel test failed for query={item} \n request={request}")
             return sentinelResult
-        logging.info(f"sentinel test passed for query={item} for user {request.scope['user']}")
+        logging.info(f"sentinel test passed for query={item}")
     else:
         request.scope["user"] = {"id": "2d9dc5ca-a4a2-11ed-b9df-0242ac120003"}
         logging.info(f"sentinel skippend because of DEMO mode for query={item} for user {request.scope['user']}")
@@ -176,16 +216,7 @@ async def apollo_gql(request: Request, item: Item):
     # logging.info(f"schema execute result \n{schemaresult}")
     result = {"data": schemaresult.data}
     if schemaresult.errors:
-        re = []
-        for error in schemaresult.errors:
-            re.append({
-                # "message": error.message,
-                # "path": error.path,
-                # "repr": error.__repr__(),
-                "msg": f"{error}".split("\n")
-            })
-                      
-        result["errors"] = re
+        result["errors"] = [f"{error}" for error in schemaresult.errors]
     return result
 
 logging.info("All initialization is done")
